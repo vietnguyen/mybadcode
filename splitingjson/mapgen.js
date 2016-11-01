@@ -2,17 +2,38 @@ const ljf = require( "load-json-file" );
 const wjf = require( "write-json-file" );
 
 const oul3 = ljf.sync( "./data/vnProv.json" );
-var o={features:[]
+
+
+const regions = [
+    {
+        name: "North",
+        id : "JzKStMojAGA",
+    },
+    {
+        name:"Central",
+        id: "SgkhNupCR4x"
+    },
+    {
+        name:"Highland",
+        id:"bJ55F4lb3WJ"
+    },
+    {
+        name:"South",
+        id:"T6shP0GyRuQ"
+    }
+];
+
+
+const filterOuByRegion = (oul, region) => {
+    let listOu = {};
+    listOu.features = oul.features.filter( o => o.properties.parent === region.id );
+    return listOu;
 };
 
+const exportOuByRegions = (oul, regions) => {
+    regions.forEach( r => {
+        wjf.sync( `./data/${r.name}RegionMap.json`, filterOuByRegion( oul, r ), {indent: 2} );
+    });
+}
 
-oul3.features.forEach(function(features){
-	///change the uid to region north JzKStMojAGA, central SgkhNupCR4x, highland bJ55F4lb3WJ, south T6shP0GyRuQ
-  if(features.properties.parent=='T6shP0GyRuQ'){
-   console.log(features.id);
-    o.features.push(features);
-
-  }
-});
-/// change the outputfile name based on the region
-wjf.sync( "./data/southregionmap.json", o, {indent: 2} );
+exportOuByRegions(oul3,regions);
